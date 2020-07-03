@@ -28,10 +28,17 @@ class App extends Component {
 
     this.socket.on('offerOrAnswer', (sdp) => {
       this.textref.value = JSON.stringify(sdp)
+
+      //set sdp as remote desc (now automatically)
+      this.pc.setRemoteDescription(new RTCSessionDescription(sdp))
+
     })
 
     this.socket.on('candidate', (candidate) => {
-      this.candidates = [...this.candidates,candidate]
+      // this.candidates = [...this.candidates,candidate]     ...... not adding to the array now instead do >>
+      
+      //(now automatically)
+      this.pc.addIceCandidate(new RTCIceCandidate(candidate))
     })
 
     // const pc_config = null
@@ -151,9 +158,7 @@ class App extends Component {
         <button onClick = {this.createAnswer}>Answer</button>
         <br />
         <textarea ref={ref => { this.textref = ref }}/>
-        <br />
-        <button onClick = {this.setRemoteDescription}>set Remote Desc</button>
-        <button onClick = {this.addCandidate}>Add Candidate</button>
+        
       </div>
     );
   }
