@@ -34,17 +34,20 @@ class App extends Component {
       this.candidates = [...this.candidates,candidate]
     })
 
-    const pc_config = null
+    // const pc_config = null
 
-    // const pc_config = {
-    //   "iceServers":[
-    //     {
-    //       urls: 'stun:[STUN-IP]:[PORT]',
-    //       'credentials': '[YOUR CREDENTIAL]',
-    //       'username': '[USERNAME]'
-    //     }
-    //   ]
-    // }
+    const pc_config = {
+      "iceServers":[
+        // {
+        //   urls: 'stun:[STUN-IP]:[PORT]',
+        //   'credentials': '[YOUR CREDENTIAL]',
+        //   'username': '[USERNAME]'
+        // }
+        {
+          urls : 'stun:stun.l.google.com:19302'
+        }
+      ]
+    }
 
 
     this.pc = new RTCPeerConnection(pc_config)
