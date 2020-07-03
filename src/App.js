@@ -1,15 +1,41 @@
 import React, { Component } from "react";
 
+import io from 'socket.io-client';
+
 class App extends Component {
   constructor(props) {
     super(props);
     this.localVideoref = React.createRef();
     this.remoteVideoref = React.createRef();
+
+    this.socket = null
+    this.candidates = [] 
   }
 
   componentDidMount(){
 
+    this.socket = io(
+      '/webrtcPeer',
+      {
+        path: '/webrtc',
+        query: {}
+      }
+    )
+
+    this.socket.on('connection-success', success => {
+      console.log(success)
+    })
+
+    this.socket.on('offerOrAnswer', (sdp) => {
+      this.textref.value = JSON.stringify(sdp)
+    })
+
+    this.socket.on('candidate', (candidate) => {
+      this.candidates = [...this.candidates,candidate]
+    })
+
     const pc_config = null
+
     // const pc_config = {
     //   "iceServers":[
     //     {
@@ -23,14 +49,18 @@ class App extends Component {
 
     this.pc = new RTCPeerConnection(pc_config)
 
+    //triggerd when new candidate is returned
     this.pc.onicecandidate= (e) => {
-      if(e.candidate) console.log(JSON.stringify(e.candidate))
+      // if(e.candidate) console.log(JSON.stringify(e.candidate))
+      this.sendToPeer('candidate', e.candidate)
     }
 
+    //triggered when there is change in connection state
     this.pc.oniceconnectionstatechange = (e) => {
       console.log(e)
     }
 
+    //triggered when a stream is added to pc
     this.pc.ontrack = (e) =>{
       this.remoteVideoref.current.srcObject = e.streams[0]
     }
@@ -53,12 +83,24 @@ class App extends Component {
     .catch(failure)
   }
 
+  sendToPeer = (messageType, payload) => {
+    this.socket.emit(messageType, {
+      socketID: this.socket.id,
+      payload
+    })
+  }
+
   createOffer = () => {
     console.log('Offer')
+    //initiates the creation of SDP
     this.pc.createOffer({offerToReceiveVideo: 1})
       .then(sdp => {
-        console.log(JSON.stringify(sdp))
+        // console.log(JSON.stringify(sdp))
+
+        //set offer sdp as local description
         this.pc.setLocalDescription(sdp)
+
+        this.sendToPeer('offerOrAnswer',sdp)
       }, e=> {})
   }
 
@@ -71,15 +113,23 @@ class App extends Component {
     console.log('Answer')
     this.pc.createAnswer({offerToReceiveVideo: 1})
       .then(sdp => {
-        console.log(JSON.stringify(sdp))
+        // console.log(JSON.stringify(sdp))
+
+        //set answer sdp as local description
         this.pc.setLocalDescription(sdp)
+        this.sendToPeer('offerOrAnswer',sdp)
       }, e=> {})
   }
 
   addCandidate=() =>{
-    const candidate = JSON.parse(this.textref.value)
-    console.log('Adding Candidate:', candidate)
-    this.pc.addIceCandidate(new RTCIceCandidate(candidate))
+    // const candidate = JSON.parse(this.textref.value)
+    // console.log('Adding Candidate:', candidate)
+    // this.pc.addIceCandidate(new RTCIceCandidate(candidate))
+
+    this.candidates.forEach(candidate => {
+      console.log(JSON.stringify(candidate))
+      this.pc.addIceCandidate(new RTCIceCandidate(candidate))
+    });
   }
 
   render() {
