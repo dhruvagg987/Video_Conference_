@@ -2,17 +2,27 @@ import React, { Component } from "react";
 
 import io from "socket.io-client";
 
+import Video from './Components/Video'
+
 class App extends Component {
   constructor(props) {
     super(props);
-    this.localVideoref = React.createRef();
-    this.remoteVideoref = React.createRef();
+
+    this.state = {
+      localStream: null,
+      remoteStream: null,
+    }
+    // this.localVideoref = React.createRef();
+    // this.remoteVideoref = React.createRef();
 
     this.socket = null;
     this.candidates = [];
   }
 
   componentDidMount() {
+
+    document.body.style.backgroundColor = "black"
+
     this.socket = io("/webrtcPeer", {
       path: "/webrtc",
       query: {},
@@ -66,16 +76,25 @@ class App extends Component {
 
     //triggered when a stream is added to pc
     this.pc.ontrack = (e) => {
-      this.remoteVideoref.current.srcObject = e.streams[0];
+      // this.remoteVideoref.current.srcObject = e.streams[0];
+      this.setState({
+        remoteStream: e.streams[0]
+      })
     };
 
     const constraints = { video: true };
     const success = (stream) => {
-      this.localVideoref.current.srcObject = stream;
+      // this.localVideoref.current.srcObject = stream;  ....no longer needed
+      //...now use
+      this.setState({
+        localStream: stream
+      })
       // this.pc.addTrack(stream)
       stream.getTracks().forEach((track) => {
         this.pc.addTrack(track, stream);
       });
+
+      
     };
 
     const failure = (e) => {
@@ -142,12 +161,15 @@ class App extends Component {
   };
 
   render() {
+
+    console.log(this.state.localStream)
+
     return (
-      <div>
-        <video
-          style={{
+      <div style={{backgroundColor: "black",}}>
+        <Video
+          videoStyles={{
             zIndex: 2,
-            position: "fixed",
+            position: "absolute",
             right: 0,
             bottom: 0,
             maxWidth: 200,
@@ -155,21 +177,26 @@ class App extends Component {
             margin: 5,
             backgroundColor: "black",
           }}
-          ref={this.localVideoref}
-          autoPlay
-        ></video>
-        <video
-          style={{
+          // ref={this.localVideoref}
+          videoStream={this.state.localStream}
+          autoPlay muted
+        ></Video>
+        <Video
+          videoStyles={{
             zIndex: 1,
-            position: "fixed",
-            bottom: 0,
-            minWidth: "100%",
-            minHeight: "100%",
+            position:"fixed",
+            top:7,
+            margin:1,
+            bottom:1,
+            bottom: 2,
+            minWidth:"100%",
+            maxHeight: "80%",
             backgroundColor: "black",
           }}
-          ref={this.remoteVideoref}
+          // ref={this.remoteVideoref}
+          videoStream={this.state.remoteStream}
           autoPlay
-        ></video>
+        ></Video>
         <div style={{ zIndex: 1, position: "fixed" }}>
           <button onClick={this.createOffer}>Offer</button>
           <button onClick={this.createAnswer}>Answer</button>
