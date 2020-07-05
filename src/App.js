@@ -4,6 +4,8 @@ import io from "socket.io-client";
 
 import Video from './Components/Video'
 
+import Videos from './Components/Videos'
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -11,6 +13,7 @@ class App extends Component {
     this.state = {
       localStream: null,
       remoteStream: null,
+      remoteStreams: [],
     }
     // this.localVideoref = React.createRef();
     // this.remoteVideoref = React.createRef();
@@ -82,7 +85,7 @@ class App extends Component {
       })
     };
 
-    const constraints = { video: true };
+    const constraints = { video: true, audio: true };
     const success = (stream) => {
       // this.localVideoref.current.srcObject = stream;  ....no longer needed
       //...now use
@@ -197,6 +200,15 @@ class App extends Component {
           videoStream={this.state.remoteStream}
           autoPlay
         ></Video>
+
+          <div>
+            <Videos
+              switchVideo={() => { }}
+              remoteStreams={this.state.remoteStreams}
+            ></Videos>
+          </div>
+          <br />
+
         <div style={{ zIndex: 1, position: "fixed" }}>
           <button onClick={this.createOffer}>Offer</button>
           <button onClick={this.createAnswer}>Answer</button>
