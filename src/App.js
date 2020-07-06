@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import './App.css'
+
 import io from "socket.io-client";
 
 import Video from './Components/Video'
@@ -421,7 +423,7 @@ class App extends Component {
 
     console.log(this.state.localStream)
 
-    const statusText = <div style={{ color: 'yellow', padding: 5 }}>{this.state.status}</div>
+    const statusText = <div style={{ color: 'white', padding: 5 }}>{this.state.status}</div>
 
     return (
       <div style={{backgroundColor: "black",}}>
@@ -459,14 +461,7 @@ class App extends Component {
         </Video>
 
         <br />
-        <div style={{
-          zIndex: 3,
-          position: 'absolute',
-          margin: 10,
-          backgroundColor: '#cdc4ff4f',
-          padding: 10,
-          borderRadius: 5,
-        }}>
+        <div id="stats">
           { statusText }
         </div>
 
@@ -478,23 +473,9 @@ class App extends Component {
           </div>
           <br />
 
-        {/* <div style={{ zIndex: 1, position: "fixed" }}>
-          <button onClick={this.createOffer}>Offer</button>
-          <button onClick={this.createAnswer}>Answer</button>
-          <br />
-          <textarea
-            ref={(ref) => {
-              this.textref = ref;
-            }}
-          />
-        </div> */}
-
       </div>
     )
   }
 }
 
 export default App;
-
-
-//////////will change
