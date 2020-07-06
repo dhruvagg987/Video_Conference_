@@ -20,13 +20,8 @@ class App extends Component {
 
       status: 'Please wait...',
 
-      pc_config = {
+      pc_config: {
         "iceServers": [
-          // {
-          //   urls: 'stun:[STUN-IP]:[PORT]',
-          //   'credentials': '[YOUR CREDENTIAL]',
-          //   'username': '[USERNAME]'
-          // }
           {
             urls: "stun:stun.l.google.com:19302",
           }
@@ -51,11 +46,13 @@ class App extends Component {
   getLocalStream = () => {
     
     // called when getUserMedia() successfully returns
-    const sucess= (stream) => {
+    const success= (stream) => {
       window.localStream = stream
       this.setState({
         localStream: stream
       })
+
+      // console.log(this.state.localStream)
 
       this.whoisOnline()
     }
@@ -88,7 +85,7 @@ class App extends Component {
 
   whoisOnline = () => {
     //let all peers know I am joining
-    this.sendToPeer('onlinePeers',null,{local: this.socketID})
+    this.sendToPeer('onlinePeers',null,{local: this.socket.id})
   }
 
   sendToPeer = (messageType, payload, socketID) => {
@@ -98,7 +95,7 @@ class App extends Component {
     })
   }
 
-  createPeerConnections = (socketID, callback) => {
+  createPeerConnection = (socketID, callback) => {
     
     try{
       let pc = new RTCPeerConnection(this.state.pc_config)
@@ -118,18 +115,18 @@ class App extends Component {
         }
       }
 
-      this.pc.oniceconnectionstatechange = (e) => {
+      // this.pc.oniceconnectionstatechange = (e) => {
 
-        // if (pc.iceConnectionState === 'disconnected') {
-        //   const remoteStreams = this.state.remoteStreams.filter(stream => stream.id !== socketID)
+      //   // if (pc.iceConnectionState === 'disconnected') {
+      //   //   const remoteStreams = this.state.remoteStreams.filter(stream => stream.id !== socketID)
 
-        //   this.setState({
-        //     remoteStream: remoteStreams.length > 0 && remoteStreams[0].stream || null,
-        //   })
-        // }
+      //   //   this.setState({
+      //   //     remoteStream: remoteStreams.length > 0 && remoteStreams[0].stream || null,
+      //   //   })
+      //   // }
 
-        console.log(e);
-      }
+      //   //console.log(e);
+      // }
 
       //..............................NO IDEA................//
       pc.ontrack = (e) => {
@@ -160,14 +157,14 @@ class App extends Component {
       }
 
       pc.close = () =>{
-        //alert('gone')
+        // alert('gone')
       }
 
       if (this.state.localStream)
-        this.state.localStream.getTracks().forEach((track) => {
-          this.pc.addTrack(track, this.state.localStream);
-        })
-        //pc.addTrack(this.state.localStream)
+        // this.state.localStream.getTracks().forEach((track) => {
+        //   pc.addTrack(track, this.state.localStream);
+        // })
+        pc.addStream(this.state.localStream)
 
       //return pc
       callback(pc)
@@ -185,18 +182,16 @@ class App extends Component {
     document.body.style.backgroundColor = "black"
 
     this.socket = io("/webrtcPeer", {
-      path: "/webrtc",
-      query: {
-        room: window.location.pathname,
-      }
+      path: "/io/webrtc",
+      query: {}
     })
 
     this.socket.on("connection-success", data => {
       this.getLocalStream()
 
-      console.log(data.sucess)
+      console.log(data.success)
       //...............NO........//
-      const satatus = data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
+      const status = data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
 
       this.setState({
         status: status
@@ -221,12 +216,70 @@ class App extends Component {
         return{
           remoteStreams,
           ...selectedVideo,
-          status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
+          // status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
         }
       })
     })
 
+    this.socket.on('online-peer', socketID => {
+      console.log('connected peers ...', socketID)
 
+      //create and send offer to the peer (data.socketID)
+      // 1. Create new pc
+      this.createPeerConnection(socketID, pc => {
+        // 2. Create Offer
+          if(pc)
+            pc.createOffer(this.state.sdpConstraints)
+              .then(sdp => {
+                pc.setLocalDescription(sdp)
+
+                this.sendToPeer('offer', sdp, {
+                  local: this.socket.id,
+                  remote: socketID
+                })
+            })
+      })
+    })
+
+    this.socket.on('offer', data=> {
+      this.createPeerConnection(data.socketID, pc => {
+
+        // if (this.state.localStream)
+        // this.state.localStream.getTracks().forEach((track) => {
+        //   pc.addTrack(track, this.state.localStream);
+        // })
+        pc.addStream(this.state.localStream)
+
+        pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
+          .then(() => {
+            // 2. Create Answer
+            pc.createAnswer(this.state.sdpConstraints)
+              .then(sdp => {
+                pc.setLocalDescription(sdp)
+
+                this.sendToPeer('answer', sdp, {
+                  local: this.socket.id,
+                  remote: data.socketID
+                })
+              })
+          })
+      })
+    })
+
+    this.socket.on('answer', data => {
+      // get remote's peerConnection
+      const pc = this.state.peerConnections[data.socketID]
+      console.log(data.sdp)
+      pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(() => {})
+    })
+
+    this.socket.on('candidate', (data) => {
+      //get remote's peerConnection
+      const pc = this.state.peerConnections[data.socketID]
+
+      if (pc)
+        pc.addIceCandidate(new RTCIceCandidate(data.candidate))
+    })
 
      // 226
 
@@ -354,9 +407,21 @@ class App extends Component {
   //   });
   // };
 
+
+  }
+
+  switchVideo = (_video) => {
+    console.log(_video)
+    this.setState({
+      selectedVideo: _video
+    })
+  }
+
   render() {
 
     console.log(this.state.localStream)
+
+    const statusText = <div style={{ color: 'yellow', padding: 5 }}>{this.state.status}</div>
 
     return (
       <div style={{backgroundColor: "black",}}>
@@ -365,7 +430,7 @@ class App extends Component {
             zIndex: 2,
             position: "absolute",
             right: 0,
-            bottom: 0,
+            bottom: 5,
             maxWidth: 200,
             maxHeight: 200,
             margin: 5,
@@ -388,19 +453,32 @@ class App extends Component {
             backgroundColor: "black",
           }}
           // ref={this.remoteVideoref}
-          videoStream={this.state.remoteStream}
-          autoPlay
-        ></Video>
+          // videoStream={this.state.remoteStream}
+          videoStream={this.state.selectedVideo && this.state.selectedVideo.stream}
+          autoPlay>
+        </Video>
+
+        <br />
+        <div style={{
+          zIndex: 3,
+          position: 'absolute',
+          margin: 10,
+          backgroundColor: '#cdc4ff4f',
+          padding: 10,
+          borderRadius: 5,
+        }}>
+          { statusText }
+        </div>
 
           <div>
             <Videos
-              switchVideo={() => { }}
+              switchVideo={this.switchVideo}
               remoteStreams={this.state.remoteStreams}
             ></Videos>
           </div>
           <br />
 
-        <div style={{ zIndex: 1, position: "fixed" }}>
+        {/* <div style={{ zIndex: 1, position: "fixed" }}>
           <button onClick={this.createOffer}>Offer</button>
           <button onClick={this.createAnswer}>Answer</button>
           <br />
@@ -409,10 +487,14 @@ class App extends Component {
               this.textref = ref;
             }}
           />
-        </div>
+        </div> */}
+
       </div>
-    );
+    )
   }
 }
 
 export default App;
+
+
+//////////will change

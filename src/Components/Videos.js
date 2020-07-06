@@ -55,7 +55,7 @@ class Videos extends Component {
           backgroundColor: 'rgba(0,0,0,0.3)',
           maxHeight: 120,
           top: 'auto',
-          right: 10,
+          right: 220,
           left: 10,
           bottom: 10,
           overflowX: 'scroll',

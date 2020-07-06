@@ -6,8 +6,18 @@ class Video extends Component{
         this.state = {}
     }
 
+    componentDidMount() {
+        if (this.props.videoStream) {
+            this.video.srcObject = this.props.videoStream
+        }
+    }
+
     componentWillReceiveProps(nextProps){
-        this.video.srcObject = nextProps.videoStream
+        console.log(nextProps.videoStream)
+
+        if (nextProps.videoStream && nextProps.videoStream !== this.props.videoStream){
+             this.video.srcObject = nextProps.videoStream
+        }
     }
 
     render(){
