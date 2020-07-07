@@ -1,4 +1,5 @@
 const express = require('express')
+const { Socket } = require('socket.io-client')
 
 var io = require('socket.io')
 ({
@@ -8,11 +9,17 @@ var io = require('socket.io')
 const app = express()
 const port = 8080
 
+const rooms = {}
+
 // app.get('/', (req, res) => res.send('hello world!!'))
 
 app.use(express.static(__dirname + '/build'))
-app.get('/',(req, res, next) => {
+app.get('/:room',(req, res, next) => { //default
     res.sendFile(__dirname + '/build/index.html')
+})
+
+app.get('/',(req, res, next) => {
+  res.sendFile(__dirname + '/build/index.html')
 })
 
 const server = app.listen(port,()=> console.log('example app listening on port ',port))
@@ -26,36 +33,62 @@ io.on('connection', socket => {
 
 const peers = io.of('/webrtcPeer')
 
-let connectedPeers = new Map()
+// let connectedPeers = new Map()
 
 peers.on('connection', socket => {
 
-    connectedPeers.set(socket.id, socket)
+  const room = socket.handshake.query.room
+
+  rooms[room] = rooms[room] && rooms[room].set(socket.id, socket) || (new Map()).set(socket.id, socket)
+
+    // connectedPeers.set(socket.id, socket)
 
     console.log(socket.id)
     socket.emit('connection-success', {
         success: socket.id,
-        peerCount: connectedPeers.size,
+        peerCount: rooms[room].size,
      })
     
-    const broadcast = () => socket.broadcast.emit('joined-peers', {
-        peerCount: connectedPeers.size,
-    })
+    // const broadcast = () => socket.broadcast.emit('joined-peers', {
+    //     peerCount: connectedPeers.size,
+    // })
+
+    const broadcast = () => {
+      const _connectedPeers = rooms[room]
+
+      for (const [socketID, _socket] of _connectedPeers.entries()) {
+        _socket.emit('joined-peers', {
+          peerCount: rooms[room].size,  //connectedPeers.size,
+        })
+      }
+  }
     broadcast()
 
-    const disconnectedPeer = (socketID) => socket.broadcast.emit('peer-disconnected',{
-        peerCount: connectedPeers.size,
-        socketID: socketID
-    })
+    // const disconnectedPeer = (socketID) => socket.broadcast.emit('peer-disconnected',{
+    //     peerCount: connectedPeers.size,
+    //     socketID: socketID
+    // })
+
+    const disconnectedPeer = (socketID) => {
+      const _connectedPeers = rooms[room]
+      for (const [_socketID, _socket] of _connectedPeers.entries()) {
+        _socket.emit('peer-disconnected', {
+          peerCount: rooms[room].size,
+          socketID
+        })
+      }
+  }
 
     socket.on('disconnect', () => {
         console.log('disconnected')
-        connectedPeers.delete(socket.id)
+        // connectedPeers.delete(socket.id)
+        rooms[room].delete(socket.id)
         disconnectedPeer(socket.id)
     })
 
     socket.on('onlinePeers', (data) => {
-        for(const [socketID, _socket] of connectedPeers.entries()) {
+      const _connectedPeers = rooms[room]
+        for(const [socketID, _socket] of _connectedPeers.entries()) {
             //don't send to self
             if(socketID !== data.socketID.local){
                 console.log('online-peer', data.socketID, socketID)
@@ -65,7 +98,8 @@ peers.on('connection', socket => {
     })
 
     socket.on('offer', data => {
-        for (const [socketID, socket] of connectedPeers.entries()) {
+      const _connectedPeers = rooms[room]
+        for (const [socketID, socket] of _connectedPeers.entries()) {
           // don't send to self
           if (socketID === data.socketID.remote) {
             // console.log('Offer', socketID, data.socketID, data.payload.type)
@@ -79,7 +113,8 @@ peers.on('connection', socket => {
       })
     
       socket.on('answer', (data) => {
-        for (const [socketID, socket] of connectedPeers.entries()) {
+        const _connectedPeers = rooms[room]
+        for (const [socketID, socket] of _connectedPeers.entries()) {
           if (socketID === data.socketID.remote) {
             console.log('Answer', socketID, data.socketID, data.payload.type)
             socket.emit('answer', {
@@ -103,8 +138,9 @@ peers.on('connection', socket => {
     // })
 
     socket.on('candidate', (data) => {
+      const _connectedPeers = rooms[room]
         //send to other peers if any
-        for (const [socketID, socket] of connectedPeers.entries()){
+        for (const [socketID, socket] of _connectedPeers.entries()){
             //don't send to self
             if(socketID === data.socketID.remote){
                 socket.emit('candidate',{

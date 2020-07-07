@@ -185,7 +185,9 @@ class App extends Component {
 
     this.socket = io("/webrtcPeer", {
       path: "/io/webrtc",
-      query: {}
+      query: {
+        room: window.location.pathname,
+      }
     })
 
     this.socket.on("connection-success", data => {
@@ -202,7 +204,7 @@ class App extends Component {
 
     this.socket.on('joined-peers', data => {
       this.setState({
-        satatus: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
+        status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
       })
     })
 
@@ -218,7 +220,7 @@ class App extends Component {
         return{
           remoteStreams,
           ...selectedVideo,
-          // status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
+          status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
         }
       })
     })
