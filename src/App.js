@@ -10,6 +10,12 @@ import Videos from './Components/Videos'
 
 import Draggable from './Components/draggable.js'
 
+import Alert from 'react-bootstrap/Alert'
+
+import Button from 'react-bootstrap/Button'
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -38,12 +44,15 @@ class App extends Component {
             'OfferToRecieveVideo':true
           }
         },
+
+        disconnected: false,
     }
     // this.localVideoref = React.createRef();
     // this.remoteVideoref = React.createRef();
 
     this.socket = null;
     // this.candidates = [];
+
   }
 
   getLocalStream = () => {
@@ -460,11 +469,20 @@ class App extends Component {
 
     console.log(this.state.localStream)
 
+    if (this.state.disconnected) {
+      this.socket.close()
+      this.state.localStream.getTracks().forEach(track => track.stop())
+      return(
+          <Alert  variant="dark" >
+           You have successfully Disconnected
+      </Alert>
+      )
+    }
+
     const statusText = <div style={{ color: 'white', padding: 5 }}>{this.state.status}</div>
 
     return (
       <div style={{backgroundColor: "black",}}>
-        
       <Draggable style={{
           zIndex: 101,
           position: 'absolute',
@@ -475,7 +493,7 @@ class App extends Component {
             videoStyles={{
               zIndex: 2,
               // position: "absolute",
-              right: 0,
+              right: 15,
               width: 200,
               // bottom: 5,
               // maxWidth: 200,
@@ -516,6 +534,8 @@ class App extends Component {
         <br />
         <div id="stats">
           { statusText }
+          <br></br>
+          <Button variant="outline-danger" size="sm" onClick={(e) => {this.setState({disconnected: true})}}> Leave </Button>
         </div>
 
           <div>

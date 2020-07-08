@@ -33,11 +33,12 @@
   position: absolute;
   margin: 1rem;
   /* background: #29282879; */
-  background: linear-gradient(to bottom, #68686817 0%, #2e2e2e 100%);
+  background: linear-gradient(to bottom, #68686817 0%, #1f1f1fd2 100%);
 
   padding: 0.2rem;
   border-Radius: 5px;
 }
+
   
 .App-header {
   background-color: #282c34;

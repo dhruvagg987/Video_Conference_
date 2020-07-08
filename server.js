@@ -13,13 +13,14 @@ const rooms = {}
 
 // app.get('/', (req, res) => res.send('hello world!!'))
 
-app.use(express.static(__dirname + '/build'))
-app.get('/:room',(req, res, next) => { //default
-    res.sendFile(__dirname + '/build/index.html')
+app.use(express.static(__dirname + '/build/'))
+
+app.get('',(req, res, next) => { //default
+  res.sendFile(__dirname + '/build/home.html')
 })
 
-app.get('/',(req, res, next) => {
-  res.sendFile(__dirname + '/build/index.html')
+app.get('/:room',(req, res, next) => {
+    res.sendFile(__dirname + '/build/index.html')
 })
 
 const server = app.listen(port,()=> console.log('example app listening on port ',port))
