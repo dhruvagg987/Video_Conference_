@@ -8,35 +8,36 @@ import Video from './Components/Video'
 
 import Videos from './Components/Videos'
 
+import Draggable from './Components/draggable.js'
+
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      localStream: null,    // used to hold local stream object to avoid recreating the stream everytime a new offer comes
-      remoteStream: null,   // used to hold remote stream object that is displayed in the main screen
-      
-      remoteStreams: [],    // holds all Video Streams (all remote streams)
-      peerConnections: {},  // holds all Peer connections
-      selectedVideo: null,
+        localStream: null,    // used to hold local stream object to avoid recreating the stream everytime a new offer comes
+        remoteStream: null,   // used to hold remote stream object that is displayed in the main screen
+        
+        remoteStreams: [],    // holds all Video Streams (all remote streams)
+        peerConnections: {},  // holds all Peer connections
+        selectedVideo: null,
 
-      status: 'Please wait...',
+        status: 'Please wait...',
 
-      pc_config: {
-        "iceServers": [
-          {
-            urls: "stun:stun.l.google.com:19302",
+        pc_config: {
+          "iceServers": [
+            {
+              urls: "stun:stun.l.google.com:19302",
+            }
+          ]
+        },
+
+        sdpConstraints: {
+          'mandatory' : {
+            'OfferToRecieveAudio': true,
+            'OfferToRecieveVideo':true
           }
-        ]
-      },
-
-      sdpConstraints: {
-        'mandatory' : {
-          'OfferToRecieveAudio': true,
-          'OfferToRecieveVideo':true
-        }
-      },
-
+        },
     }
     // this.localVideoref = React.createRef();
     // this.remoteVideoref = React.createRef();
@@ -65,7 +66,7 @@ class App extends Component {
     }
 
     const constraints = {
-      // audio: true,
+      audio: true,
       video: true,
       // video: {
       //   width: 1280,
@@ -132,16 +133,50 @@ class App extends Component {
 
       //..............................NO IDEA................//
       pc.ontrack = (e) => {
-        const remoteVideo = {
-          id: socketID,
-          name: socketID,
-          stream: e.streams[0]
+
+        let _remoteStream = null
+        let remoteStreams = this.state.remoteStreams
+        let remoteVideo = {}
+
+        // 1. check if stream already exists in remoteStreams
+        const rVideos = this.state.remoteStreams.filter(stream => stream.id === socketID)
+        
+        // 2. if it does exist then add track
+        if(rVideos.length){
+          _remoteStream = rVideos[0].stream
+          _remoteStream.addTrack(e.track, _remoteStream)
+          remoteVideo = {
+            ...rVideos[0],
+            stream: _remoteStream,
+          }
+          remoteStreams = this.state.remoteStreams.map(_remoteVideo => {
+            return _remoteVideo.id === remoteVideo.id && remoteVideo || _remoteVideo
+          })
+        } else {
+
+          // 3. if not, then create new stream and add track
+          _remoteStream = new MediaStream()
+          _remoteStream.addTrack(e.track, _remoteStream)
+
+          remoteVideo = {
+            id: socketID,
+            name: socketID,
+            stream: _remoteStream,
+          }
+          remoteStreams = [...this.state.remoteStreams, remoteVideo]
         }
+
+        // const remoteVideo = {
+        //   id: socketID,
+        //   name: socketID,
+        //   stream: e.streams[0]
+        // }
 
         this.setState(prevState => {
 
           // If we already have a stream in display let it stay the same, otherwise use the latest stream
-          const remoteStream = prevState.remoteStreams.length > 0 ? {} : { remoteStream: e.streams[0] }
+          // const remoteStream = prevState.remoteStreams.length > 0 ? {} : { remoteStream: e.streams[0] }
+          const remoteStream = prevState.remoteStreams.length > 0 ? {} : { remoteStream: _remoteStream }
 
           // get currently selected video
           let selectedVideo = prevState.remoteStreams.filter(stream => stream.id === prevState.selectedVideo.id)
@@ -153,7 +188,7 @@ class App extends Component {
             ...selectedVideo,
             // remoteStream: e.streams[0],
             ...remoteStream,
-            remoteStreams: [...prevState.remoteStreams, remoteVideo]
+            remoteStreams,  //: [...prevState.remoteStreams, remoteVideo]
           }
         })
       }
@@ -163,10 +198,10 @@ class App extends Component {
       }
 
       if (this.state.localStream)
-        // this.state.localStream.getTracks().forEach((track) => {
-        //   pc.addTrack(track, this.state.localStream);
-        // })
-        pc.addStream(this.state.localStream)
+        this.state.localStream.getTracks().forEach((track) => {
+          pc.addTrack(track, this.state.localStream)
+        })
+        // pc.addStream(this.state.localStream)
 
       //return pc
       callback(pc)
@@ -194,7 +229,7 @@ class App extends Component {
       this.getLocalStream()
 
       console.log(data.success)
-      //...............NO........//
+      
       const status = data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
 
       this.setState({
@@ -429,21 +464,37 @@ class App extends Component {
 
     return (
       <div style={{backgroundColor: "black",}}>
-        <Video
-          videoStyles={{
-            zIndex: 2,
-            position: "absolute",
-            right: 0,
-            bottom: 5,
-            maxWidth: 200,
-            maxHeight: 200,
-            margin: 5,
-            backgroundColor: "black",
-          }}
-          // ref={this.localVideoref}
-          videoStream={this.state.localStream}
-          autoPlay muted
-        ></Video>
+        
+      <Draggable style={{
+          zIndex: 101,
+          position: 'absolute',
+          right: 0,
+          cursor: 'move'
+        }}>
+          <Video
+            videoStyles={{
+              zIndex: 2,
+              // position: "absolute",
+              right: 0,
+              width: 200,
+              // bottom: 5,
+              // maxWidth: 200,
+              // maxHeight: 200,
+              // margin: 5,
+              // backgroundColor: "black",
+            }}
+            frameStyle={{
+              width: 200,
+              margin: 5,
+              borderRadius: 5,
+              backgroundColor: 'black',
+            }}
+            showMuteControls = {true}
+            // ref={this.localVideoref}
+            videoStream={this.state.localStream}
+            autoPlay muted
+          ></Video>
+        </Draggable>
         <Video
           videoStyles={{
             zIndex: 1,
