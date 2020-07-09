@@ -38,7 +38,18 @@
   padding: 0.2rem;
   border-Radius: 5px;
 }
+.col-form-label{
+  color:white;
+  display: block;
+}
+.form-control{
+  width: 7rem !important;
+  background: rgba(253, 253, 253, 0.808) !important;
 
+}
+form{
+  width: auto;
+}
   
 .App-header {
   background-color: #282c34;

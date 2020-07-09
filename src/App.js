@@ -14,7 +14,13 @@ import Alert from 'react-bootstrap/Alert'
 
 import Button from 'react-bootstrap/Button'
 
+import Form from 'react-bootstrap/Form'
+
+import { hashHistory } from 'react-router';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+import { Container, Row, Col } from 'react-bootstrap';
 
 class App extends Component {
   constructor(props) {
@@ -29,6 +35,10 @@ class App extends Component {
         selectedVideo: null,
 
         status: 'Please wait...',
+
+        username : "anonymous",
+
+        room: window.location.pathname.slice(5,),
 
         pc_config: {
           "iceServers": [
@@ -54,6 +64,17 @@ class App extends Component {
     // this.candidates = [];
 
   }
+
+  handleChange(e) {
+    this.setState({ username: e.target.value });
+ }
+
+ keyPress(e){
+    if(e.keyCode == 13){
+       console.log('username', e.target.value);
+       // put the login here
+    }
+ }
 
   getLocalStream = () => {
     
@@ -242,7 +263,8 @@ class App extends Component {
       const status = data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
 
       this.setState({
-        status: status
+        status: status,
+        room : window.location.pathname.slice(4),
       })
     })
 
@@ -468,7 +490,7 @@ class App extends Component {
   render() {
 
     console.log(this.state.localStream)
-
+    console.log(this.state.username)
     if (this.state.disconnected) {
       this.socket.close()
       this.state.localStream.getTracks().forEach(track => track.stop())
@@ -535,6 +557,35 @@ class App extends Component {
         <div id="stats">
           { statusText }
           <br></br>
+          {/* <span>
+          <label>Name</label><span> </span>
+          <input value={this.state.username} onKeyDown={ (e) => {if(e.keyCode == 13) {console.log('username', e.target.value); this.setState({ username: e.target.value });} } } onChange={ (e) => {this.setState({ username: e.target.value });} } />
+          </span> */}
+          <br></br>
+  {/* <Form.Control type="text" placeholder="Normal text" />
+  <br />
+  <Form.Control size="sm" type="text" placeholder="Small text" />
+  <br></br> */}
+  <Form>
+      <Form.Group as={Row} controlId="formPlaintextPassword">
+        <Form.Label column sm="4">
+          Username
+        </Form.Label>
+        <Col sm="4">
+          <Form.Control  onKeyDown={ (e) => {if(e.keyCode == 13) {console.log('username', e.target.value); this.setState({ username: e.target.value });} } } size="sm" type="text" placeholder={this.state.username} />
+        </Col>
+      </Form.Group>
+
+      <Form.Group as={Row} controlId="formPlaintextPassword">
+        <Form.Label column sm="4">
+          Room_ID
+        </Form.Label>
+        <Col sm="4">
+          <Form.Control  onKeyDown={ (e) => {if(e.keyCode == 13) { console.log('room', e.target.value); window.location.href= (window.location.origin+"/room"+e.target.value); console.log(this.state.room); } } } size="sm" type="text" placeholder={this.state.room} />
+        </Col>
+      </Form.Group>
+  </Form>
+{/* <div>{this.state.room}</div> */}
           <Button variant="outline-danger" size="sm" onClick={(e) => {this.setState({disconnected: true})}}> Leave </Button>
         </div>
 

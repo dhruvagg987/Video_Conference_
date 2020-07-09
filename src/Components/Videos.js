@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import Video from './Video'
+import { Redirect } from 'react-router/cjs/react-router.min'
 
 class Videos extends Component {
   constructor(props) {
@@ -21,12 +22,14 @@ class Videos extends Component {
         let video = _videoTrack && (
           <Video
             videoStream={rVideo.stream}
-            frameStyle={{ width: 120, float: 'left', padding: '0 3px' }}
+            frameStyle={{ width: 120, hieght: 120, float: 'left', padding: '0 3px 0 3px', }}
             videoStyles={{
               cursor: 'pointer',
               objectFit: 'cover',
               borderRadius: 3,
               width: '100%',
+              height: '6rem',
+              background: 'rgb(32,32,32)',
             }}
             autoplay
           />
@@ -36,7 +39,7 @@ class Videos extends Component {
           <div
             id={rVideo.name}
             onClick={() => this.props.switchVideo(rVideo)}
-            style={{ display: 'inline-block' }}
+            style={{ display: 'inline-block', paddingRight:'0.8rem', }}
             key={index}
           >
             {video}
@@ -57,9 +60,9 @@ class Videos extends Component {
         style={{
           zIndex: 3,
           position: 'fixed',
-          padding: '6px 3px',
+          // padding: '6px 3px',
           backgroundColor: 'rgba(0,0,0,0.3)',
-          maxHeight: 120,
+          height: '8rem',
           top: 'auto',
           right: 220,
           left: 10,
