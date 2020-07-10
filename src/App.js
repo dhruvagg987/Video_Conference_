@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useRef,Component } from "react";
 
 import './App.css'
 
@@ -65,16 +65,56 @@ class App extends Component {
 
   }
 
-  handleChange(e) {
-    this.setState({ username: e.target.value });
- }
+//   handleChange(e) {
+//     this.setState({ username: e.target.value });
+//  }
 
- keyPress(e){
-    if(e.keyCode == 13){
-       console.log('username', e.target.value);
-       // put the login here
-    }
- }
+//  keyPress(e){
+//     if(e.keyCode == 13){
+//        console.log('username', e.target.value);
+//        // put the login here
+//     }
+//  }
+
+  shareScreen = () => {
+    navigator.mediaDevices.getDisplayMedia({ audio:true, video:true, cursor: true }).then(stream => {
+        
+        const pc = this.state.peerConnections[this.socket.id]
+        console.log("closing pc")
+        console.log(pc)
+        pc.close()
+        
+      //   stream.getTracks().forEach((track) => {
+      //     pc.addTrack(track, this.state.localStream)
+      //   })
+
+      //   screenTrack.onended = function() {
+      //     this.state.localStream.getTracks().forEach((track) => {
+      //       pc.addTrack(track, this.state.localStream)
+      //     })
+      // }
+
+        window.localStream = stream
+        this.setState({
+          localStream: stream
+        })
+
+        this.whoisOnline()
+
+        // this.sendToPeer('screenshare',stream,{local: this.socket.id})
+        const screenTrack = stream.getTracks()[0];
+        // senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
+        // console.log(screenTrack)
+        // console.log("sending to server")
+        
+
+        
+        screenTrack.onended = function() {
+            console.log("ending screen share")
+            this.getLocalStream()
+        }
+    })
+  }
 
   getLocalStream = () => {
     
@@ -161,7 +201,6 @@ class App extends Component {
       //   //console.log(e);
       // }
 
-      //..............................NO IDEA................//
       pc.ontrack = (e) => {
 
         let _remoteStream = null
@@ -260,23 +299,24 @@ class App extends Component {
 
       console.log(data.success)
       
-      const status = data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
+      const status = data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname.slice(5)}: ${data.peerCount}` : 'Waiting for other peers to connect'
 
       this.setState({
         status: status,
-        room : window.location.pathname.slice(4),
+        room : window.location.pathname.slice(5),
       })
     })
 
     this.socket.on('joined-peers', data => {
       this.setState({
-        status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
+        status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname.slice(5)}: ${data.peerCount}` : 'Waiting for other peers to connect'
       })
     })
 
     this.socket.on('peer-disconnected', data => {
       console.log('peer-disconnected', data)
 
+      //remove from remoteStreams by filtering only other peer's streams
       const remoteStreams = this.state.remoteStreams.filter(stream => stream.id !== data.socketID)
 
       this.setState(prevState => {
@@ -286,7 +326,7 @@ class App extends Component {
         return{
           remoteStreams,
           ...selectedVideo,
-          status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname}: ${data.peerCount}` : 'Waiting for other peers to connect'
+          status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname.slice(5)}: ${data.peerCount}` : 'Waiting for other peers to connect'
         }
       })
     })
@@ -349,6 +389,23 @@ class App extends Component {
 
       if (pc)
         pc.addIceCandidate(new RTCIceCandidate(data.candidate))
+    })
+
+    this.socket.on('screenshare', (data) => {
+        console.log("shared screeen")
+        console.log(data.socketID)
+        console.log(data.screenStream)
+
+        // this.setState({
+        //   remoteStream: data.screenStream,
+        // })
+        const screenTrack = data.screenStream.getTracks()[0];
+        // senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
+
+        const pc = this.state.peerConnections[data.socketID]
+        pc.restartIce()
+
+        
     })
 
      // 226
@@ -586,6 +643,7 @@ class App extends Component {
       </Form.Group>
   </Form>
 {/* <div>{this.state.room}</div> */}
+          <button onClick={this.shareScreen}>share screen</button>
           <Button variant="outline-danger" size="sm" onClick={(e) => {this.setState({disconnected: true})}}> Leave </Button>
         </div>
 

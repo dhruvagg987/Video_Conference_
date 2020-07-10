@@ -153,4 +153,20 @@ peers.on('connection', socket => {
             }
         }
     })
+
+    socket.on('screenshare',(data) => {
+      const _connectedPeers = rooms[room]
+      // const screenTrack = data.payload
+      console.log(data)
+      for (const [socketID, socket] of _connectedPeers.entries()){
+        //don't send to self
+        if(socketID !== data.socketID.local){
+          console.log("recieved by server")
+            socket.emit('screenshare',{
+                screenStream: data.payload,
+                socketID: data.socketID.local
+            })
+        }
+    }
+    })
 })
