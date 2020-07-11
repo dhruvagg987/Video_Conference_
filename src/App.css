@@ -52,14 +52,24 @@ a.dropdown-item {
   text-decoration: none;
   background-color: none;
 }
-
+#stats1{
+  z-Index: 3;
+  position: absolute;
+  margin: 1rem;
+  /* background: #29282879; */
+  background: linear-gradient(to bottom, #68686817 0%, #1f1f1fd2 100%);
+  /* left: 4rem; */
+  padding: 0.2rem;
+  border-Radius: 5px;
+  
+}
 #stats{
   z-Index: 3;
   position: absolute;
   margin: 1rem;
   /* background: #29282879; */
   background: linear-gradient(to bottom, #68686817 0%, #1f1f1fd2 100%);
-
+  left: 3.7rem;
   padding: 0.2rem;
   border-Radius: 5px;
 }

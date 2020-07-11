@@ -643,7 +643,7 @@ class App extends Component {
           videoStyles={{
             zIndex: 1,
             position:"fixed",
-            top:7,
+            top:"1px",
             margin:1,
             bottom:1,
             bottom: 2,
@@ -658,9 +658,12 @@ class App extends Component {
         </Video>
 
         <br />
+        <div>
         <div id="stats">
           { statusText }
-          <br></br>
+          </div>
+          <div id="stats1">
+          
           {/* <span>
           <label>Name</label><span> </span>
           <input value={this.state.username} onKeyDown={ (e) => {if(e.keyCode == 13) {console.log('username', e.target.value); this.setState({ username: e.target.value });} } } onChange={ (e) => {this.setState({ username: e.target.value });} } />
@@ -670,8 +673,8 @@ class App extends Component {
   <br />
   <Form.Control size="sm" type="text" placeholder="Small text" />
   <br></br> */}
-  <span style={{display: "inline"}}>
-    <div style={{width: "2rem"}}>
+  
+    <div style={{width: "3rem", margin:0}}>
    <Dropdown>
   <Dropdown.Toggle variant="dark" id="dropdown-basic" title="options">
         <span><i className="fa fa-bars"></i></span>
@@ -707,13 +710,14 @@ class App extends Component {
         
   </Dropdown.Item>
   </Dropdown.Menu>
-</Dropdown></div>{ statusText }</span>
+</Dropdown></div>
 
 {/* <div>{this.state.room}</div> */}
           {/* <Button variant="primary" size="sm" onClick={this.shareScreen}>share screen</Button>
           <Button variant="outline-danger" size="sm" onClick={(e) => {this.setState({disconnected: true})}}> Leave </Button> */}
-        
         </div>
+        </div>
+        
 
           <div>
             <Videos
