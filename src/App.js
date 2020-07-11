@@ -79,10 +79,29 @@ class App extends Component {
   shareScreen = () => {
     navigator.mediaDevices.getDisplayMedia({ audio:true, video:true, cursor: true }).then(stream => {
         
-        const pc = this.state.peerConnections[this.socket.id]
+        window.localStream = stream
+        this.setState({
+          localStream: stream
+        })
+        let videoTrack = stream.getVideoTracks()[0];
         console.log("closing pc")
-        console.log(pc)
-        pc.close()
+        console.log(this.state.peerConnections)
+        for (const [socketID, pc] of Object.entries(this.state.peerConnections)){
+          console.log("screen to peer :")
+          console.log(pc)
+          console.log(pc.getSenders())
+          var sender = pc.getSenders().find(function(s) {
+            return s.track.kind == videoTrack.kind;
+          });
+          console.log('found sender:', sender);
+          sender.replaceTrack(videoTrack);
+          // pc.addStream(this.state.localStream)
+          // const pc = this.state.peerConnections[this.socket.id]
+        }
+        
+        
+        
+        // pc.close()
         
       //   stream.getTracks().forEach((track) => {
       //     pc.addTrack(track, this.state.localStream)
@@ -94,24 +113,41 @@ class App extends Component {
       //     })
       // }
 
-        window.localStream = stream
-        this.setState({
-          localStream: stream
-        })
+        
 
-        this.whoisOnline()
+        // this.whoisOnline()
 
         // this.sendToPeer('screenshare',stream,{local: this.socket.id})
-        const screenTrack = stream.getTracks()[0];
+        // const screenTrack = stream.getTracks()[0];
         // senders.current.find(sender => sender.track.kind === 'video').replaceTrack(screenTrack);
         // console.log(screenTrack)
         // console.log("sending to server")
         
 
         
-        screenTrack.onended = function() {
+        videoTrack.onended = () => {
             console.log("ending screen share")
-            this.getLocalStream()
+            navigator.mediaDevices.getUserMedia({audio:true, video:true , options:{mirror:true,}})
+              .then( stream => {
+
+                window.localStream = stream
+                this.setState({
+                localStream: stream
+                })
+
+                let videoTrack = stream.getVideoTracks()[0];
+                
+                for (const [socketID, pc] of Object.entries(this.state.peerConnections)){
+                  console.log("screen end for peer :")
+                  console.log(pc.getSenders())
+                  var sender = pc.getSenders().find(function(s) {
+                    return s.track.kind == videoTrack.kind;
+                  });
+                  console.log('found sender:', sender);
+                  sender.replaceTrack(videoTrack);
+                }
+                
+              })
         }
     })
   }
@@ -557,7 +593,7 @@ class App extends Component {
       </Alert>
       )
     }
-
+    
     const statusText = <div style={{ color: 'white', padding: 5 }}>{this.state.status}</div>
 
     return (
@@ -568,7 +604,7 @@ class App extends Component {
           right: 0,
           cursor: 'move'
         }}>
-          <Video
+          <Video 
             videoStyles={{
               zIndex: 2,
               // position: "absolute",
@@ -592,7 +628,7 @@ class App extends Component {
             autoPlay muted
           ></Video>
         </Draggable>
-        <Video
+        <Video id="mainvid"
           videoStyles={{
             zIndex: 1,
             position:"fixed",

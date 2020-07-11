@@ -39,14 +39,30 @@ class Video extends Component{
         })
     }
 
-    render(){
+    render(){ 
         const muteControls = this.props.showMuteControls && (
             <div>
               <i onClick={this.mutemic} style={{ cursor: 'pointer', padding: 5, fontSize: 20, color: this.state.mic && 'white' || 'red' }} class='material-icons'>{this.state.mic && 'mic' || 'mic_off'}</i>
               <i onClick={this.mutecamera} style={{ cursor: 'pointer', padding: 5, fontSize: 20, color: this.state.camera && 'white' || 'red' }} class='material-icons'>{this.state.camera && 'videocam' || 'videocam_off'}</i>
             </div>
           )
-        return (
+
+          if(this.props.id=="mainvid"){
+            return (
+                <div style={{...this.props.frameStyle}}>
+                    <video controls
+                        id={this.props.id}
+                        muted={this.props.muted}
+                        autoPlay
+                        style={{...this.props.videoStyles}}
+                        // ref={this.props.videoRef}
+                        ref = { (ref) => {this.video = ref }}
+                    ></video>
+                    {muteControls}
+                </div>
+            )
+        }
+         else return (
             <div style={{...this.props.frameStyle}}>
                 <video
                     id={this.props.id}
