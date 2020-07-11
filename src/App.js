@@ -16,11 +16,19 @@ import Button from 'react-bootstrap/Button'
 
 import Form from 'react-bootstrap/Form'
 
+import Dropdown from 'react-bootstrap/Dropdown'
+
+// import { ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+
 import { hashHistory } from 'react-router';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// import { faHome } from "@fortawesome/free-solid-svg-icons";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { Container, Row, Col } from 'react-bootstrap';
+import DropdownMenu from "react-bootstrap/esm/DropdownMenu";
 
 class App extends Component {
   constructor(props) {
@@ -595,6 +603,9 @@ class App extends Component {
     }
     
     const statusText = <div style={{ color: 'white', padding: 5 }}>{this.state.status}</div>
+  //   ${('.dropdown-menu')}.click(function(e) {
+  //     e.stopPropagation();
+  // });
 
     return (
       <div style={{backgroundColor: "black",}}>
@@ -654,33 +665,54 @@ class App extends Component {
           <label>Name</label><span> </span>
           <input value={this.state.username} onKeyDown={ (e) => {if(e.keyCode == 13) {console.log('username', e.target.value); this.setState({ username: e.target.value });} } } onChange={ (e) => {this.setState({ username: e.target.value });} } />
           </span> */}
-          <br></br>
+          
   {/* <Form.Control type="text" placeholder="Normal text" />
   <br />
   <Form.Control size="sm" type="text" placeholder="Small text" />
   <br></br> */}
-  <Form>
-      <Form.Group as={Row} controlId="formPlaintextPassword">
-        <Form.Label column sm="4">
-          Username
-        </Form.Label>
-        <Col sm="4">
-          <Form.Control  onKeyDown={ (e) => {if(e.keyCode == 13) {console.log('username', e.target.value); this.setState({ username: e.target.value });} } } size="sm" type="text" placeholder={this.state.username} />
-        </Col>
-      </Form.Group>
+  <span style={{display: "inline"}}>
+    <div style={{width: "2rem"}}>
+   <Dropdown>
+  <Dropdown.Toggle variant="dark" id="dropdown-basic" title="options">
+        <span><i className="fa fa-bars"></i></span>
+  </Dropdown.Toggle>
 
-      <Form.Group as={Row} controlId="formPlaintextPassword">
-        <Form.Label column sm="4">
-          Room_ID
-        </Form.Label>
-        <Col sm="4">
-          <Form.Control  onKeyDown={ (e) => {if(e.keyCode == 13) { console.log('room', e.target.value); window.location.href= (window.location.origin+"/room"+e.target.value); console.log(this.state.room); } } } size="sm" type="text" placeholder={this.state.room} />
-        </Col>
-      </Form.Group>
-  </Form>
-{/* <div>{this.state.room}</div> */}
-          <button onClick={this.shareScreen}>share screen</button>
+  <Dropdown.Menu onClick={e => e.stopPropagation()}>
+    <Dropdown.Item onClick={e => e.stopPropagation()}>
+      <div>
+        <Form onClick={e => e.stopPropagation()}>
+          <Form.Group as={Row} controlId="formPlaintextPassword">
+            <Form.Label column sm="4">
+              Username
+            </Form.Label>
+            <Col sm="4">
+              <Form.Control onSelect={e => e.stopPropagation()} onKeyDown={ (e) => {if(e.keyCode == 13) {console.log('username', e.target.value); this.setState({ username: e.target.value });} } } size="sm" type="text" placeholder={this.state.username} />
+            </Col>
+          </Form.Group>
+
+          <Form.Group as={Row} controlId="formPlaintextPassword">
+            <Form.Label column sm="4">
+              Room_ID
+            </Form.Label>
+            <Col sm="4">
+              <Form.Control onSelect={e => e.stopPropagation()}  onKeyDown={ (e) => {if(e.keyCode == 13) { console.log('room', e.target.value); window.location.href= (window.location.origin+"/room"+e.target.value); console.log(this.state.room); } } } size="sm" type="text" placeholder={this.state.room} />
+            </Col>
+          </Form.Group>
+      </Form></div>
+    </Dropdown.Item>
+  
+  <Dropdown.Item>
+  <Button variant="primary" size="sm" onClick={this.shareScreen}>share screen</Button><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
           <Button variant="outline-danger" size="sm" onClick={(e) => {this.setState({disconnected: true})}}> Leave </Button>
+        
+  </Dropdown.Item>
+  </Dropdown.Menu>
+</Dropdown></div>{ statusText }</span>
+
+{/* <div>{this.state.room}</div> */}
+          {/* <Button variant="primary" size="sm" onClick={this.shareScreen}>share screen</Button>
+          <Button variant="outline-danger" size="sm" onClick={(e) => {this.setState({disconnected: true})}}> Leave </Button> */}
+        
         </div>
 
           <div>

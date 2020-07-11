@@ -28,6 +28,31 @@
   background: rgb(134, 134, 134);
 }
 
+a.dropdown-item {
+  padding: 3%;
+}
+.dropdown-menu {
+  width: 12.5rem;
+}
+.dropdown-menu.show{
+  background: rgba(128, 128, 128, 0.11);
+}
+
+.dropdown-menu.show:hover{
+  background-color: none;
+}
+
+.dropdown-item:focus,.dropdown-item:hover, .dropdown-item:hover {
+  color: #16181b;
+  text-decoration: none;
+  background-color: rgba(255, 0, 0, 0) !important;
+}
+.dropdown-item.active, .dropdown-item:active {
+  color: none;
+  text-decoration: none;
+  background-color: none;
+}
+
 #stats{
   z-Index: 3;
   position: absolute;
