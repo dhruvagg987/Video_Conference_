@@ -10,6 +10,7 @@ const app = express()
 const port = 8080
 
 const rooms = {}
+const messages = {}  //messages object
 
 // app.get('/', (req, res) => res.send('hello world!!'))
 
@@ -42,12 +43,15 @@ peers.on('connection', socket => {
 
   rooms[room] = rooms[room] && rooms[room].set(socket.id, socket) || (new Map()).set(socket.id, socket)
 
+  messages[room] = messages[room] || []   //assign room messages if available
+
     // connectedPeers.set(socket.id, socket)
 
     console.log(socket.id)
     socket.emit('connection-success', {
         success: socket.id,
         peerCount: rooms[room].size,
+        messages: messages[room],
      })
     
     // const broadcast = () => socket.broadcast.emit('joined-peers', {
@@ -79,6 +83,12 @@ peers.on('connection', socket => {
         })
       }
   }
+
+    socket.on('new-message', data => {
+      console.log('new-message', JSON.parse(data.payload))
+
+      messages[room] = [...messages[room], JSON.parse(data.payload)]
+    })
 
     socket.on('disconnect', () => {
         console.log('disconnected')

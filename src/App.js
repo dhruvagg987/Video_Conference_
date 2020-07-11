@@ -353,6 +353,7 @@ class App extends Component {
       this.setState({
         status: status,
         room : window.location.pathname.slice(5),
+        messages: data.messages        // new of chat
       })
     })
 
@@ -498,6 +499,7 @@ class App extends Component {
 
         pc.ondatachannel = recieveChannelCallback
 
+        // ......................
 
         pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
           .then(() => {
@@ -834,6 +836,7 @@ class App extends Component {
                 this.state.sendChannels.map(sendChannel => {
                   sendChannel.readyState === 'open' && sendChannel.send(JSON.stringify(message))
                 })
+                this.sendToPeer('new-message',JSON.stringify(message), {local: this.socket.id})
               }}
           />
 
