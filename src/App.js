@@ -10,6 +10,8 @@ import Videos from './Components/Videos'
 
 import Draggable from './Components/draggable.js'
 
+import Chat from './Components/chat'
+
 import Alert from 'react-bootstrap/Alert'
 
 import Button from 'react-bootstrap/Button'
@@ -62,6 +64,9 @@ class App extends Component {
             'OfferToRecieveVideo':true
           }
         },
+
+        messages: [],
+        sendChannels: [],
 
         disconnected: false,
     }
@@ -383,6 +388,52 @@ class App extends Component {
       this.createPeerConnection(socketID, pc => {
         // 2. Create Offer
           if(pc)
+          {    //brackets are new
+          //.....DO FOR PEER CONNECTION THAT CREATES OFFER.
+
+          // Send Channel
+          const handleSendChannelStatusChange = (event) => {
+            console.log('send channel status: '+ this.state.sendChannels[0].readyState)
+          }
+
+          const sendChannel = pc.createDataChannel('sendChannel')
+          sendChannel.onopen = handleSendChannelStatusChange
+          sendChannel.onclose = handleSendChannelStatusChange
+
+          this.setState(prevState => {
+            return{
+              sendChannels: [...prevState.sendChannels, sendChannel]
+            }
+          })
+
+          // Recieve Channels 
+          const handleRecieveMessage = (event) => {
+            const message = JSON.parse(event.data)
+            console.log(message)
+            this.setState(prevState => {
+              return {
+                messages: [...prevState.messages, message]
+              }
+            })
+          }
+
+          const handleRecieveChannelStatusChange = (event) => {
+            if(this.recievChannel){
+              console.log("recieved channel's status has changed to "+ this.recievChannel.readyState)
+            }
+          }
+          // ... (Note: not creating new data channel)
+          const recieveChannelCallback = (event) => {
+            const recievChannel = event.channel
+            recievChannel.onmessage = handleRecieveMessage
+            recievChannel.onopen = handleRecieveChannelStatusChange
+            recievChannel.onclose = handleRecieveChannelStatusChange
+          }
+
+          pc.ondatachannel = recieveChannelCallback
+          
+          //.............
+
             pc.createOffer(this.state.sdpConstraints)
               .then(sdp => {
                 pc.setLocalDescription(sdp)
@@ -392,6 +443,7 @@ class App extends Component {
                   remote: socketID
                 })
             })
+        }  //...... new one
       })
     })
 
@@ -403,6 +455,49 @@ class App extends Component {
         //   pc.addTrack(track, this.state.localStream);
         // })
         pc.addStream(this.state.localStream)
+
+        // DO FOR PEER CONNECTION THAT CREATES AN ANSWER
+        // Send Channel
+        const handleSendChannelStatusChange = (event) => {
+          console.log('send channel status: '+ this.state.sendChannels[0].readyState)
+        }
+
+        const sendChannel = pc.createDataChannel('sendChannel')
+        sendChannel.onopen = handleSendChannelStatusChange
+        sendChannel.onclose = handleSendChannelStatusChange
+
+        this.setState(prevState => {
+          return{
+            sendChannels: [...prevState.sendChannels, sendChannel]
+          }
+        })
+
+        // Recieve Channels 
+        const handleRecieveMessage = (event) => {
+          const message = JSON.parse(event.data)
+          console.log(message)
+          this.setState(prevState => {
+            return {
+              messages: [...prevState.messages, message]
+            }
+          })
+        }
+
+        const handleRecieveChannelStatusChange = (event) => {
+          if(this.recievChannel){
+            console.log("recieved channel's status has changed to "+ this.recievChannel.readyState)
+          }
+        }
+        // ... (Note: not creating new data channel)
+        const recieveChannelCallback = (event) => {
+          const recievChannel = event.channel
+          recievChannel.onmessage = handleRecieveMessage
+          recievChannel.onopen = handleRecieveChannelStatusChange
+          recievChannel.onclose = handleRecieveChannelStatusChange
+        }
+
+        pc.ondatachannel = recieveChannelCallback
+
 
         pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
           .then(() => {
@@ -726,6 +821,21 @@ class App extends Component {
             ></Videos>
           </div>
           <br />
+
+          <Chat
+              user={{
+                uid: this.socket && this.socket.id || ''
+              }}
+              messages={this.state.messages}
+              sendMessage={(message)=>{
+                this.setState(prevState => {
+                  return {messages: [...prevState.messages, message]}
+                })
+                this.state.sendChannels.map(sendChannel => {
+                  sendChannel.readyState === 'open' && sendChannel.send(JSON.stringify(message))
+                })
+              }}
+          />
 
       </div>
     )
