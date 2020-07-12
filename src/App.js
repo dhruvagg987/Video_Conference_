@@ -20,6 +20,8 @@ import Form from 'react-bootstrap/Form'
 
 import Dropdown from 'react-bootstrap/Dropdown'
 
+import SplitButton from 'react-bootstrap/SplitButton'
+
 // import { ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
 import { hashHistory } from 'react-router';
@@ -823,8 +825,19 @@ class App extends Component {
             ></Videos>
           </div>
           <br />
+          
 
-          <Chat
+          <div id="stats2">
+    
+          <Dropdown id={`dropdown-button-drop-up`}>
+  <Dropdown.Toggle variant="dark" id={`dropdown-button-drop-up`} title="CHAT">
+        <span><i className="fa fa-comments fa-fw "></i></span>
+  </Dropdown.Toggle>
+
+  <Dropdown.Menu onClick={e => e.stopPropagation()} style={{top: "-45rem", background: "none"}}>
+    <Dropdown.Item onClick={e => e.stopPropagation()}>
+      <div>
+      <Chat onClick={e => e.stopPropagation()}
               user={{
                 uid: this.socket && this.socket.id || ''
               }}
@@ -839,6 +852,30 @@ class App extends Component {
                 this.sendToPeer('new-message',JSON.stringify(message), {local: this.socket.id})
               }}
           />
+
+      </div>
+    </Dropdown.Item>
+  </Dropdown.Menu>
+</Dropdown>
+    
+  </div>
+
+
+          {/* <Chat
+              user={{
+                uid: this.socket && this.socket.id || ''
+              }}
+              messages={this.state.messages}
+              sendMessage={(message)=>{
+                this.setState(prevState => {
+                  return {messages: [...prevState.messages, message]}
+                })
+                this.state.sendChannels.map(sendChannel => {
+                  sendChannel.readyState === 'open' && sendChannel.send(JSON.stringify(message))
+                })
+                this.sendToPeer('new-message',JSON.stringify(message), {local: this.socket.id})
+              }}
+          /> */}
 
       </div>
     )

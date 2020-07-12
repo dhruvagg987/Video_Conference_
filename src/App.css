@@ -63,6 +63,26 @@ a.dropdown-item {
   border-Radius: 5px;
   
 }
+
+#stats2 .dropdown-menu.show {
+  top: -35rem !important; 
+  background: rgba(128, 128, 128, 0);
+  border: none;
+}
+#stats2{
+  right:0rem;
+  z-Index: 300;
+  position: absolute;
+  bottom: 0rem;
+  margin: 1rem;
+  /* background: #29282879; */
+  background: linear-gradient(to bottom, #68686817 0%, #1f1f1fd2 100%);
+  /* background: ivory; */
+  /* left: 4rem; */
+  padding: 0.2rem;
+  border-Radius: 5px;
+  
+}
 #stats{
   z-Index: 3;
   position: absolute;

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import DragDrop from './dragDrop'
+import ReactDOM from 'react-dom';
 
 const Chat = props => {
   const [message, setMessage] = useState('')
@@ -13,6 +14,7 @@ const Chat = props => {
     const chat = document.getElementById("chatList");
     chat.scrollTop = chat.scrollHeight
   }
+  var disp = 'grid'
 
   useEffect(() => {
     scrollToBottom()
@@ -33,7 +35,11 @@ const Chat = props => {
 
   const handleChange = event => {
     setMessage(event.target.value)
-  }
+  };
+
+    const myfunc = event =>{
+      alert(disp);
+    };
 
   const renderMessage = (userType, data) => {
     console.log('===========', data)
@@ -84,17 +90,20 @@ const Chat = props => {
     />)
   }
 
+
   return (
     <div>
       {imageZoom && showEnlargedImage(selectedImage)}
 
-      <div className="chatWindow" style={{
+      <div id="chatbox" className="chatWindow" style={{
         zIndex: 10,
         position: 'absolute',
-        right: 5,
-        top: 190,
+        right: "-1rem",
+        top: "5%",
         bottom: 14,
-        width: 340,
+        display: disp,
+        // width: 340,
+        width: "150%",
         // height: 650,
     }}>
         <ul className="chat" id="chatList">
@@ -122,18 +131,28 @@ const Chat = props => {
           }}
         >
           <div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} onClick={e => e.stopPropagation()}>
               <input
+                onClick={e => e.stopPropagation()}
                 className="textarea input"
                 type="text"
                 placeholder="Enter your message..."
                 onChange={handleChange}
                 value={message}
               />
+              {/* <button variant="danger" style={{
+                top:200,
+                display: "float",
+                }} id="tog"
+                onclick ={ myfunc }>try</button> */}
             </form>
           </div>
         </DragDrop>
       </div>
+      {/* <button variant="danger" style={{
+        top:200,
+        display: "float",
+      }} id="tog" onclick={myfunc}>try</button> */}
       </div>
     )
 }
