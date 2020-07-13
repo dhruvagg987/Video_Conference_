@@ -48,7 +48,7 @@ const Chat = props => {
     const msgDiv = data.type === 'text' && (
       <div className="msg">
         <p>{message.sender.uid}</p>
-        <p>{message.sender.sname}</p>
+        {/* <p>{message.sender.sname}</p> */}
         <div className="message"> {message.data.text}</div>
       </div>
     ) || (
@@ -100,11 +100,11 @@ const Chat = props => {
         zIndex: 10,
         position: 'absolute',
         right: "0rem",
-        top: "20%",
+        top: "25%",
         bottom: 14,
         display: disp,
         // width: 340,
-        width: "25%",
+        width: "20rem",
         // height: 650,
     }}>
         <ul className="chat" id="chatList">

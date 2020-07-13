@@ -367,6 +367,13 @@ class App extends Component {
       })
       console.log("this state users  : : hey look here ..................")
       console.log(this.state.users)
+      if(this.state.users)
+      {
+        console.log(Object.keys(this.state.users))
+      }
+      else{
+        console.log("bhadwa js")
+      }
       console.log(data.Users)
     })
 
@@ -886,7 +893,8 @@ class App extends Component {
       <div ref={this.chatref} style={{display: "grid"}}>
           <Chat 
               user={{
-                uid: this.socket && this.socket.id || ''
+                uid: this.socket && this.socket.id || '',
+                // sname: this.state.users[this.socket.id]
               }}
               messages={this.state.messages}
               sendMessage={(message)=>{
