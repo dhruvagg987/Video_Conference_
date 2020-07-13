@@ -8,7 +8,7 @@ var io = require('socket.io')
 
 const app = express()
 const port = 8080
-
+const users = {}
 const rooms = {}
 const messages = {}  //messages object
 
@@ -64,6 +64,7 @@ peers.on('connection', socket => {
       for (const [socketID, _socket] of _connectedPeers.entries()) {
         _socket.emit('joined-peers', {
           peerCount: rooms[room].size,  //connectedPeers.size,
+          Users : users[room]
         })
       }
   }
@@ -77,6 +78,7 @@ peers.on('connection', socket => {
     const disconnectedPeer = (socketID) => {
       const _connectedPeers = rooms[room]
       for (const [_socketID, _socket] of _connectedPeers.entries()) {
+        broadcast()
         _socket.emit('peer-disconnected', {
           peerCount: rooms[room].size,
           socketID
@@ -94,15 +96,33 @@ peers.on('connection', socket => {
         console.log('disconnected')
         // connectedPeers.delete(socket.id)
         rooms[room].delete(socket.id)
+        let dso = socket.id
+        delete users[room][dso]
         disconnectedPeer(socket.id)
     })
 
     socket.on('onlinePeers', (data) => {
       const _connectedPeers = rooms[room]
+      let username = (data.payload)
+      let _keyid = data.socketID.local
+      if(!users[room])
+      {
+        let roomusers = {}
+        roomusers[_keyid] = username
+        users[room] = roomusers
+      }
+      else{
+        users[room][_keyid]= username
+        // users[room._keyid] = username
+      }
+      // users.room.data.socketID = username  
+      console.log(users)
+      broadcast()
         for(const [socketID, _socket] of _connectedPeers.entries()) {
             //don't send to self
             if(socketID !== data.socketID.local){
                 console.log('online-peer', data.socketID, socketID)
+                console.log('online-peer-name', username , socketID)
                 socket.emit('online-peer', socketID)
             }
         }

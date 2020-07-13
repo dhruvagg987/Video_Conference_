@@ -48,6 +48,7 @@ const Chat = props => {
     const msgDiv = data.type === 'text' && (
       <div className="msg">
         <p>{message.sender.uid}</p>
+        <p>{message.sender.sname}</p>
         <div className="message"> {message.data.text}</div>
       </div>
     ) || (
@@ -98,12 +99,12 @@ const Chat = props => {
       <div id="chatbox" className="chatWindow" style={{
         zIndex: 10,
         position: 'absolute',
-        right: "-1rem",
-        top: "5%",
+        right: "0rem",
+        top: "20%",
         bottom: 14,
         display: disp,
         // width: 340,
-        width: "150%",
+        width: "25%",
         // height: 650,
     }}>
         <ul className="chat" id="chatList">

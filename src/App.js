@@ -37,7 +37,7 @@ import DropdownMenu from "react-bootstrap/esm/DropdownMenu";
 class App extends Component {
   constructor(props) {
     super(props);
-
+    this.chatref = React.createRef();
     this.state = {
         localStream: null,    // used to hold local stream object to avoid recreating the stream everytime a new offer comes
         remoteStream: null,   // used to hold remote stream object that is displayed in the main screen
@@ -69,7 +69,7 @@ class App extends Component {
 
         messages: [],
         sendChannels: [],
-
+        users : {},
         disconnected: false,
     }
     // this.localVideoref = React.createRef();
@@ -209,7 +209,8 @@ class App extends Component {
 
   whoisOnline = () => {
     //let all peers know I am joining
-    this.sendToPeer('onlinePeers',null,{local: this.socket.id})
+    var username = (this.state.username)
+    this.sendToPeer('onlinePeers',username,{local: this.socket.id})
   }
 
   sendToPeer = (messageType, payload, socketID) => {
@@ -361,8 +362,12 @@ class App extends Component {
 
     this.socket.on('joined-peers', data => {
       this.setState({
-        status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname.slice(5)}: ${data.peerCount}` : 'Waiting for other peers to connect'
+        status: data.peerCount > 1 ? `Total Connected Peers to room ${window.location.pathname.slice(5)}: ${data.peerCount}` : 'Waiting for other peers to connect',
+        users : data.Users
       })
+      console.log("this state users  : : hey look here ..................")
+      console.log(this.state.users)
+      console.log(data.Users)
     })
 
     this.socket.on('peer-disconnected', data => {
@@ -676,7 +681,8 @@ class App extends Component {
   //     this.pc.addIceCandidate(new RTCIceCandidate(candidate));
   //   });
   // };
-
+  // document.getElementById("chat_box").style.display = "none"
+  // this.chatref.current.
 
   }
 
@@ -705,6 +711,14 @@ class App extends Component {
   //   ${('.dropdown-menu')}.click(function(e) {
   //     e.stopPropagation();
   // });
+
+//   $(document).mousemove(function(event){
+//     if (document.activeElement != document.body) document.activeElement.blur();
+//  });
+
+    function handleClick(){
+      this.chatref.current.style.display = "none";
+    }
 
     return (
       <div style={{backgroundColor: "black",}}>
@@ -828,8 +842,16 @@ class App extends Component {
           
 
           <div id="stats2">
-    
-          <Dropdown id={`dropdown-button-drop-up`}>
+          <Button variant="success" onClick={()=>{
+            if(this.chatref.current.style.display=="grid")
+              this.chatref.current.style.display = "none"
+            else
+              this.chatref.current.style.display = "grid"
+            }}
+            style={{
+              borderRadius: "90px",
+            }}><i className="fa fa-comments fa-fw "></i></Button>
+          {/* <Dropdown id={`dropdown-button-drop-up`}>
   <Dropdown.Toggle variant="dark" id={`dropdown-button-drop-up`} title="CHAT">
         <span><i className="fa fa-comments fa-fw "></i></span>
   </Dropdown.Toggle>
@@ -839,7 +861,8 @@ class App extends Component {
       <div>
       <Chat onClick={e => e.stopPropagation()}
               user={{
-                uid: this.socket && this.socket.id || ''
+                uid: this.socket && this.socket.id || '',
+                sname: this.state.users[this.socket.id] 
               }}
               messages={this.state.messages}
               sendMessage={(message)=>{
@@ -856,12 +879,12 @@ class App extends Component {
       </div>
     </Dropdown.Item>
   </Dropdown.Menu>
-</Dropdown>
+</Dropdown> */}
     
   </div>
 
-
-          {/* <Chat
+      <div ref={this.chatref} style={{display: "grid"}}>
+          <Chat 
               user={{
                 uid: this.socket && this.socket.id || ''
               }}
@@ -875,7 +898,8 @@ class App extends Component {
                 })
                 this.sendToPeer('new-message',JSON.stringify(message), {local: this.socket.id})
               }}
-          /> */}
+          />
+         </div>
 
       </div>
     )
