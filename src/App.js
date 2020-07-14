@@ -72,20 +72,7 @@ class App extends Component {
 
         messages: [],
         sendChannels: [],
-        users : {1 : 1,
-        2: 2,
-        45:8,
-        76:9,
-        78: 100,
-        100: 200,
-        5: 2,
-        6: 2,
-        7: 2,
-        8: 2,
-        8: 2,
-        9: 2,
-        10: 2,
-      3:3,},
+        users : {},
         disconnected: false,
 
         usersArray : {
