@@ -35,7 +35,7 @@ a.dropdown-item {
   width: 12.5rem;
 }
 .dropdown-menu.show{
-  background: rgba(128, 128, 128, 0.11);
+  background: rgba(43, 42, 42, 0.342);
 }
 
 .dropdown-menu.show:hover{
@@ -65,9 +65,26 @@ a.dropdown-item {
 }
 
 #stats2 .dropdown-menu.show {
+  z-index: 3;
   top: -35rem !important; 
-  background: rgba(128, 128, 128, 0);
+  background: rgb(49, 49, 49);
   border: none;
+}
+#stats3{
+  padding-top: 1rem;
+  background: rgba(44, 44, 44, 0.418);
+  z-index: 2;
+  top:7rem;
+  left:1rem;
+  position: absolute;
+  color: azure;
+  min-width: 12rem;
+  overflow-y: scroll;
+  max-height: 60%;
+  padding-bottom: 0rem;
+}
+#stats3 ul{
+  padding-left: 0.8rem;
 }
 #stats2{
   right:0rem;

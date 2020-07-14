@@ -12,6 +12,8 @@ import Draggable from './Components/draggable.js'
 
 import Chat from './Components/chat'
 
+import Peers from './Components/Peers'
+
 import Alert from 'react-bootstrap/Alert'
 
 import Button from 'react-bootstrap/Button'
@@ -38,6 +40,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.chatref = React.createRef();
+    this.peerref = React.createRef();
     this.state = {
         localStream: null,    // used to hold local stream object to avoid recreating the stream everytime a new offer comes
         remoteStream: null,   // used to hold remote stream object that is displayed in the main screen
@@ -69,8 +72,29 @@ class App extends Component {
 
         messages: [],
         sendChannels: [],
-        users : {},
+        users : {1 : 1,
+        2: 2,
+        45:8,
+        76:9,
+        78: 100,
+        100: 200,
+        5: 2,
+        6: 2,
+        7: 2,
+        8: 2,
+        8: 2,
+        9: 2,
+        10: 2,
+      3:3,},
         disconnected: false,
+
+        usersArray : {
+          "ertert12": "kaka",
+          "lalala" : "mayur",
+          // {id : 1, body: "dharuv agg"},
+          // {id : 1, body: "mayur agg"},
+          // {id : 1, body: "dhruv agg"},
+        }
     }
     // this.localVideoref = React.createRef();
     // this.remoteVideoref = React.createRef();
@@ -565,16 +589,7 @@ class App extends Component {
 
      // 226
 
-
-
       //                   START HERE
-
-
-
-
-
-
-
 
     // this.socket.on("offerOrAnswer", (sdp) => {
     //   this.textref.value = JSON.stringify(sdp);
@@ -825,9 +840,16 @@ class App extends Component {
     </Dropdown.Item>
   
   <Dropdown.Item>
-  <Button variant="primary" size="sm" onClick={this.shareScreen}>share screen</Button><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-          <Button variant="outline-danger" size="sm" onClick={(e) => {this.setState({disconnected: true})}}> Leave </Button>
-        
+  <div style={{position:"relative",display:"inline",padding:"1rem"}}><Button variant="primary"  onClick={this.shareScreen} style={{fontSize: "1rem", width: "4rem"}} title="Share Screen"><i class="fa fa-share-square" style={{fontSize:"1.2rem"}} ></i></Button></div>
+  <div style={{position:"relative",display:"inline",padding:"1rem"}}><Button variant="info"  onClick={()=>{
+            if(this.peerref.current.style.display=="grid")
+              this.peerref.current.style.display = "none"
+            else
+              this.peerref.current.style.display = "grid"
+            }} style={{fontSize: "1rem", width: "4rem"}} title="Participants"><i class="fa fa-users" style={{fontSize:"1.2rem"}} ></i></Button>
+  </div><br/><br/>
+          <div style={{paddingLeft:"40%"}}><Button variant="outline-danger" style={{fontSize: "1.4rem",borderRadius:"100%"}}  onClick={(e) => {this.setState({disconnected: true})}} title="Disconnect"> <i className="fa fa-phone fa-fw "></i> </Button>
+        </div>
   </Dropdown.Item>
   </Dropdown.Menu>
 </Dropdown></div>
@@ -840,7 +862,24 @@ class App extends Component {
         
 
           <div>
+          {/* {
+              this.state.users && this.socket ? (
+                // let key = this.socket.id
+                <Videos
+                vname={this.state.username}
+                switchVideo={this.switchVideo}
+                remoteStreams={this.state.remoteStreams}
+              ></Videos>
+              ):
+              (
+                <Videos
+                switchVideo={this.switchVideo}
+                remoteStreams={this.state.remoteStreams}
+                ></Videos>
+              )
+            } */}
             <Videos
+              vname={this.state.username}
               switchVideo={this.switchVideo}
               remoteStreams={this.state.remoteStreams}
             ></Videos>
@@ -909,6 +948,29 @@ class App extends Component {
           />
          </div>
 
+        <div ref={this.peerref} id="stats3" style={{display:"grid"}}>
+          <ul style={{listStyle: "none",marginBottom:"0"}}>
+            {
+              this.state.users ? (
+              // this.state.usersArray.map((user, index)=>{
+                Object.keys(this.state.users).map((key, index)=>{
+                return(
+                  <Peers
+                    onClick = {()=>{
+
+                    }}
+                    id = {this.state.users[key]}
+                    body = {this.state.users[key]}
+                  />
+                )
+              })
+              ):
+              (
+                <p></p>
+              )
+            }
+          </ul>
+        </div>       
       </div>
     )
   }

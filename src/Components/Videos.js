@@ -27,7 +27,7 @@ class Videos extends Component {
               cursor: 'pointer',
               objectFit: 'cover',
               borderRadius: 3,
-              width: '100%',
+              width: '120',
               height: '6rem',
               background: 'rgb(32,32,32)',
             }}
@@ -43,6 +43,8 @@ class Videos extends Component {
             key={index}
           >
             {video}
+            <div style={{marginTop:"-1.5rem"}}>
+            <p style={{color: "white",textAlign:"center"}}>{this.props.vname}</p></div>
           </div>
         )
       })
