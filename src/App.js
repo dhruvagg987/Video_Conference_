@@ -360,7 +360,15 @@ class App extends Component {
   }
 
   componentDidMount() {
-
+    var uname = prompt("Please Enter Your Userrname For This Session.\n[NOTE: This name will be visible to other participants ]")
+    // console.log("this is ////////////////////////////////////")
+    // console.log(uname)
+    if(uname)
+    {
+      this.setState({
+      username:  uname
+      })
+    }
     document.body.style.backgroundColor = "black"
 
     this.socket = io("/webrtcPeer", {
@@ -406,7 +414,8 @@ class App extends Component {
 
       //remove from remoteStreams by filtering only other peer's streams
       const remoteStreams = this.state.remoteStreams.filter(stream => stream.id !== data.socketID)
-
+      console.log("remote streams ??????????????????????????????")
+      console.log(this.state.remoteStreams)
       this.setState(prevState => {
         // check if disconnected peer is the selected video and if there still connected peers, then select the first
         const selectedVideo = prevState.selectedVideo.id === data.socketID && remoteStreams.length ? { selectedVideo: remoteStreams[0]} : null
@@ -716,7 +725,6 @@ class App extends Component {
   }
 
   render() {
-
     console.log(this.state.localStream)
     console.log(this.state.username)
     if (this.state.disconnected) {
@@ -824,7 +832,7 @@ class App extends Component {
               Username
             </Form.Label>
             <Col sm="4">
-              <Form.Control onSelect={e => e.stopPropagation()} onKeyDown={ (e) => {if(e.keyCode == 13) {console.log('username', e.target.value); this.setState({ username: e.target.value });} } } size="sm" type="text" placeholder={this.state.username} />
+              <Form.Control onSelect={e => e.stopPropagation()} onKeyDown={ (e) => {if(e.keyCode == 13) {console.log('username', e.target.value); this.setState({ username: e.target.value });} } } size="sm" type="text" placeholder={this.state.username} disabled />
             </Col>
           </Form.Group>
 
@@ -882,6 +890,7 @@ class App extends Component {
               vname={this.state.username}
               switchVideo={this.switchVideo}
               remoteStreams={this.state.remoteStreams}
+              users = {this.state.users}
             ></Videos>
           </div>
           <br />
@@ -931,6 +940,7 @@ class App extends Component {
 
       <div ref={this.chatref} style={{display: "grid"}}>
           <Chat 
+              sname = {this.state.username}
               user={{
                 uid: this.socket && this.socket.id || '',
                 // sname: this.state.users[this.socket.id]

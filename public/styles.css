@@ -52,10 +52,10 @@
   }
   .message {
     font-size: 15px !important;
-    color: #ffe500;
+    color: #f1f1f1;
   }
   body {
-    background-color: #f5f5f5;
+    background-color: #ffffff;
     font: 600 18px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Lato,
       Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     color: #4b4b4b;
@@ -68,7 +68,7 @@
     margin-top: 15px;
   }
   .group {
-    background: #4eb5e5;
+    background: #7bc4ff;
     grid-column-start: 1;
     grid-column-end: 2;
     grid-row-start: 1;
@@ -177,6 +177,10 @@
     justify-content: flex-end;
     align-items: flex-end;
   }
+  .msg{
+    min-width: 10rem;
+    max-width: 16rem;
+  }
   .self .msg {
     order: 1;
     border-bottom-right-radius: 0px;
@@ -200,7 +204,7 @@
   }
   .msg {
     background: #cdc4ff4f;
-    min-width: fit-content;
+    /* min-width: fit-content; */
     padding: 10px;
     border-radius: 10px;
     /* box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.07); */

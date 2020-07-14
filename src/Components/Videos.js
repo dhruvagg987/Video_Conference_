@@ -8,7 +8,8 @@ class Videos extends Component {
 
     this.state = {
       rVideos: [],
-      remoteStreams: []
+      remoteStreams: [],
+      users: {},
     }
   }
 
@@ -44,12 +45,13 @@ class Videos extends Component {
           >
             {video}
             <div style={{marginTop:"-1.5rem"}}>
-            <p style={{color: "white",textAlign:"center"}}>{this.props.vname}</p></div>
+            <p style={{color: "white",textAlign:"center"}}>{this.props.users[rVideo.id]}</p></div>
           </div>
         )
       })
 
       this.setState({
+        users: nextProps.users,
         remoteStreams: nextProps.remoteStreams,
         rVideos: _rVideos
       })

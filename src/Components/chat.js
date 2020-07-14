@@ -29,7 +29,7 @@ const Chat = props => {
   const handleSubmit = event => {
     if (message === '') return
     event.preventDefault();
-    sendMessage({type:'text', message: { id: user.uid, sender: { uid: user.uid, }, data: { text: message } }})
+    sendMessage({type:'text', message: { id: user.uid, sender: { uid: user.uid, sname: props.sname }, data: { text: message } }})
     setMessage('')
   };
 
@@ -47,13 +47,13 @@ const Chat = props => {
 
     const msgDiv = data.type === 'text' && (
       <div className="msg">
-        <p>{message.sender.uid}</p>
+        <p>{message.sender.sname}</p>
         {/* <p>{message.sender.sname}</p> */}
         <div className="message"> {message.data.text}</div>
       </div>
     ) || (
       <div className="msg">
-        <p>{message.sender.uid}</p>
+        <p>{message.sender.sname}</p>
         <img
           onClick={() => {
             setImageZoom(true)
@@ -79,7 +79,7 @@ const Chat = props => {
       style={{
         backgroundColor: 'black',
         position: 'relative',
-        zIndex: 100,
+        zIndex: 900,
         display: 'block',
         cursor: 'pointer',
         marginLeft: 'auto',

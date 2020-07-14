@@ -35,7 +35,7 @@ a.dropdown-item {
   width: 12.5rem;
 }
 .dropdown-menu.show{
-  background: rgba(43, 42, 42, 0.342);
+  background: rgb(43, 42, 42);
 }
 
 .dropdown-menu.show:hover{
