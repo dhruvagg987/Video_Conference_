@@ -76,8 +76,8 @@ class App extends Component {
         disconnected: false,
 
         usersArray : {
-          "ertert12": "kaka",
-          "lalala" : "mayur",
+          // "ertert12": "kaka",
+          // "lalala" : "mayur",
           // {id : 1, body: "dharuv agg"},
           // {id : 1, body: "mayur agg"},
           // {id : 1, body: "dhruv agg"},
