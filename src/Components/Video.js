@@ -50,7 +50,7 @@ class Video extends Component{
           if(this.props.id=="mainvid"){
             return (
                 <div style={{...this.props.frameStyle}}>
-                    <video controls
+                    <video //controls
                         id={this.props.id}
                         muted={this.props.muted}
                         autoPlay
